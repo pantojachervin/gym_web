@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitnessFrontier — Move Further</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Archivo+Black&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<div id="toast-wrap"></div>
+
+
+
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-label="Sign in to FitnessFrontier">
+
+   
+    <div class="auth-modal-top">
+      <div class="auth-brand">
+        <div class="auth-brand-mark auth-brand-mark--img">
+          <img src="images/fflogowww.png" alt="FitnessFrontier Logo" class="logo-img">
+        </div>
+        <span class="auth-brand-name">FitnessFrontier</span>
+      </div>
+
+   
+      <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- warning strip shown when user tries to do something that needs login -->
+      <div class="auth-gate-msg" id="auth-gate-msg">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="auth-gate-text">Sign in to continue.</span>
+      </div>
+    </div>
+
+    <!-- tabs to switch between Sign In and Create Account -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- SIGN IN FORM (id: form-login) — shown by default -->
+    <div class="auth-form" id="form-login">
+
+      <div class="auth-field">
+        <label class="auth-label">Email Address</label>
+        <input class="auth-input" type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+        <span class="auth-error" id="login-email-err"></span>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input class="auth-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+        <span class="auth-error" id="login-pass-err"></span>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:-4px">
+        <span class="auth-forgot" onclick="toast('Password reset coming soon!')">Forgot password?</span>
+      </div>
+
+      <button class="auth-submit" id="login-btn" onclick="doLogin()">Sign In</button>
+
+      <div class="auth-divider">or continue with</div>
+
+    
+      <div class="auth-social">
+        <button class="auth-social-btn" onclick="doSocialLogin('Google')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Google
+        </button>
+        <button class="auth-social-btn" onclick="doSocialLogin('Facebook')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
+            <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.928-1.956 1.879v2.256h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+          </svg>
+          Facebook
+        </button>
+      </div>
+    </div>
+
+    <!-- CREATE ACCOUNT FORM (id: form-signup)  -->
+    <div class="auth-form hidden" id="form-signup">
+
+      <div class="auth-row">
+        <div class="auth-field">
+          <label class="auth-label">First Name</label>
+          <input class="auth-input" type="text" id="signup-first" placeholder="Alex" autocomplete="given-name">
+          <span class="auth-error" id="signup-first-err"></span>
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Last Name</label>
+          <input class="auth-input" type="text" id="signup-last" placeholder="Santos" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label">Email Address</label>
+        <input class="auth-input" type="email" id="signup-email" placeholder="your@email.com" autocomplete="email">
+        <span class="auth-error" id="signup-email-err"></span>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input class="auth-input" type="password" id="signup-pass" placeholder="Min. 8 characters" autocomplete="new-password">
+        <span class="auth-error" id="signup-pass-err"></span>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label">Confirm Password</label>
+        <input class="auth-input" type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password">
+        <span class="auth-error" id="signup-pass2-err"></span>
+      </div>
+
+      <button class="auth-submit" id="signup-btn" onclick="doSignup()">Create Account</button>
+
+      <p class="auth-terms">
+        By creating an account you agree to our
+        <a onclick="toast('Terms coming soon!')">Terms of Service</a> and
+        <a onclick="toast('Privacy policy coming soon!')">Privacy Policy</a>.
+      </p>
+    </div>
+
+    <!-- SUCCESS MESSAGE (id: auth-success) -->
+    <div class="auth-success" id="auth-success">
+      <div class="auth-success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="auth-success-title">Welcome to the Frontier!</div>
+      <p class="auth-success-sub" id="auth-success-sub">
+        Your account has been created.<br>You're now logged in and ready to train.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+<div class="panel-overlay" id="panel-overlay"></div>
+
+<!-- CART PANEL (id: cart-panel)-->
+<div class="panel" id="cart-panel">
+  <div class="panel-head">
+    <span class="panel-title">Your Cart</span>
+    <button class="panel-close" onclick="closePanel('cart-panel')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="cart-body"></div>
+  <div class="panel-foot" id="cart-foot"></div>
+</div>
+
+<!-- FAVOURITES PANEL (id: fav-panel)-->
+<div class="panel" id="fav-panel">
+  <div class="panel-head">
+    <span class="panel-title">Favourites</span>
+    <button class="panel-close" onclick="closePanel('fav-panel')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="fav-body"></div>
+  <div class="panel-foot" id="fav-foot"></div>
+</div>
+
+<!-- CHECKOUT PANEL (id: checkout-panel)-->
+<div class="panel" id="checkout-panel">
+  <div class="panel-head">
+    <span class="panel-title">Checkout</span>
+    <button class="panel-close" onclick="closePanel('checkout-panel')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="checkout-body"></div>
+  <div class="panel-foot" id="checkout-foot"></div>
+</div>
+
+<!-- ORDER HISTORY PANEL (id: history-panel)-->
+<div class="panel" id="history-panel">
+  <div class="panel-head">
+    <span class="panel-title">Order History</span>
+    <button class="panel-close" onclick="closePanel('history-panel')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body" id="history-body"></div>
+</div>
+
+
+
+<header id="header">
+
+  <!-- logo: clicking it scrolls back to the top -->
+  <span class="logo" onclick="scrollTo(0,0)">
+    <span class="logo-mark logo-mark--img">
+      <!-- replace logo.png with your own logo file -->
+      <img src="images/fflogo.png" alt="FitnessFrontier Logo" class="logo-img">
+    </span>
+    FITNESSFRONTIER
+  </span>
+
+  <!-- page section links -->
+  <nav>
+    <a onclick="scrollToSection('shop')">Shop</a>
+    <a onclick="scrollToSection('gallery')">Gallery</a>
+    <a onclick="scrollToSection('athletes')">Athletes</a>
+    <a onclick="scrollToSection('about')">About</a>
+    <a onclick="scrollToSection('newsletter')">Journal</a>
+  </nav>
+
+
+  <div class="header-icons">
+
+   
+    <button class="icon-btn" onclick="handleFavPanel()" title="Favourites">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="badge" id="fav-badge">0</span>
+    </button>
+
+    
+    <button class="icon-btn" onclick="handleOrderPanel()" title="Orders">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span class="badge" id="hist-badge">0</span>
+    </button>
+
+   
+    <button class="icon-btn" onclick="handleCartPanel()" title="Cart">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="badge" id="cart-badge">0</span>
+    </button>
+
+    
+    <div class="user-menu-wrap" id="user-menu-wrap" style="display:none;">
+      <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="user-avatar-initials">?</div>
+        <span id="user-display-name">Account</span>
+      </div>
+      
+      <div class="user-menu" id="user-menu">
+        <div class="user-menu-item" onclick="handleOrderPanel();toggleUserMenu()">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Order History
+        </div>
+        <div class="user-menu-item" onclick="handleFavPanel();toggleUserMenu()">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Favourites
+        </div>
+        <div class="user-menu-sep"></div>
+        <div class="user-menu-item logout" onclick="doLogout()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </div>
+      </div>
+    </div>
+
+    
+    <button class="btn btn-dark" id="header-login-btn" onclick="openAuth()" style="padding:9px 18px;font-size:0.72rem;border-radius:100px;">Sign In</button>
+
+  </div>
+</header>
+
+
+
+<div id="intro">
+  <div id="intro-word">
+    <span>F</span><span>I</span><span>T</span><span>N</span><span>E</span><span>S</span><span>S</span>
+    <span style="display:inline-block;width:.28em;min-width:.28em;flex-shrink:0;"></span>
+    <span>F</span><span>R</span><span>O</span><span>N</span><span>T</span><span>I</span><span>E</span><span>R</span>
+  </div>
+  <div id="intro-line">
+    <span id="intro-sub">Premium Fitness Equipment</span>
+    <span id="intro-year">Est. 2012</span>
+  </div>
+</div>
+
+
+
+<section id="hero">
+  <div class="hero-left">
+    <div class="eyebrow fade-up">New Season — SS26</div>
+    <h1 class="hero-h1 fade-up d1">Move<br><em>Further.</em><br>Train<br>Harder.</h1>
+    <p class="hero-sub fade-up d2">Precision-engineered fitness gear for athletes who demand more. Every weld, every grip, every rep, built to last a lifetime.</p>
+    <div class="hero-btns fade-up d3">
+      <button class="btn btn-dark" onclick="scrollToSection('shop')">Shop Collection</button>
+      <button class="btn btn-outline" onclick="scrollToSection('about')">Our Story</button>
+    </div>
+  </div>
+
+ 
+  <div class="hero-right fade-up d2">
+    <div class="hero-img-wrap">
+      <div class="img-slot">
+        <img src="images/Untitled design (15).png"  Hero – main banner photo">
+      </div>
+    </div>
+  </div>
+
+ 
+  <div class="hero-scroll"><div class="scroll-line"></div><span>Scroll</span></div>
+</section>
+
+
+
+<div class="ticker"><div class="ticker-inner" id="ticker-inner"></div></div>
+
+
+
+<section id="motto" class="fade-up">
+  <div class="motto-divider"></div>
+  <p class="motto-text">Gear Up for a <em>Healthier</em> Lifestyle.</p>
+  <div class="motto-divider"></div>
+</section>
+
+
+
+<section class="editorial">
+  <div class="ed-img">
+    <div class="img-slot img-slot--dark">
+      <img src="images/1a (1).png"Editorial 1 – Power Series / Barbells">
+    </div>
+    <div class="ed-img-overlay"></div>
+    <div class="ed-tag">New Arrivals — SS25</div>
+  </div>
+  <div class="ed-content ed-light fade-up">
+    <div class="eyebrow">The Power Series</div>
+    <h2 class="ed-h">Competition<br><em>Grade.</em><br>Garage Priced.</h2>
+    <p class="ed-body">Our competition barbells are trusted by three national powerlifting teams. Now available to everyone who trains like they mean it.</p>
+    <button class="btn btn-dark" onclick="scrollToSection('shop')">Shop Barbells</button>
+  </div>
+</section>
+
+
+
+<section id="shop">
+  <div class="shop-header">
+    <div>
+      <div class="eyebrow fade-up">The Collection</div>
+      <h2 class="section-h fade-up d1">All Products</h2>
+    </div>
+    <div class="filter-row fade-up d2" id="filters"></div>
+  </div>
+  <div class="product-grid" id="product-grid"></div>
+  <div class="shop-see-all" id="see-all-wrap">
+    <button class="btn btn-outline" onclick="showAll()">See All Products</button>
+  </div>
+</section>
+
+
+
+<section id="carousel-section">
+  <div class="carousel-label">
+    <div class="eyebrow" style="margin-bottom:0">Quick Add</div>
+    <div class="carousel-title">Top Picks</div>
+  </div>
+  <div style="overflow:hidden;">
+    <div class="carousel-track" id="carousel-track"></div>
+  </div>
+</section>
+
+
+
+<section class="editorial rev">
+  <div class="ed-img">
+    <div class="img-slot img-slot--dark">
+      <img src="images/app.jpg"Editorial 2 – Apparel">
+    </div>
+    <div class="ed-img-overlay"></div>
+    <div class="ed-tag">Apparel</div>
+  </div>
+  <div class="ed-content ed-dark fade-up">
+    <div class="eyebrow">FITNESSFRONTIER Apparel</div>
+    <h2 class="ed-h" style="color:var(--bg)">Wear the<br><em>Work.</em></h2>
+    <p class="ed-body">Performance apparel that moves with you — not against you. 4-way stretch, moisture-wicking, built for the long session.</p>
+    <button class="btn btn-outline-white" onclick="scrollToSection('shop')">Shop Apparel</button>
+  </div>
+</section>
+
+
+<!-- FEATURES SECTION (id: features) -->
+<section id="features">
+  <div class="feat-left slide-l">
+    <div class="eyebrow">Why FITNESSFRONTIER</div>
+    <h2 class="section-h" style="margin-bottom:18px">Built for<br>the Few.</h2>
+    <p class="feat-desc">We don't make gear for everyone. We make it for the ones who never quit — the 5am crowd, the last-rep warriors, the ones who earn their rest.</p>
+    <ul class="feat-list">
+      <li><span class="feat-num">01</span>Military-grade steel on every bar</li>
+      <li><span class="feat-num">02</span>Stress-tested at 500% rated capacity</li>
+      <li><span class="feat-num">03</span>Lifetime structural warranty — no receipts</li>
+      <li><span class="feat-num">04</span>Free white-glove delivery &amp; setup</li>
+      <li><span class="feat-num">05</span>Carbon-neutral manufacturing since 2022</li>
+    </ul>
+  </div>
+  <div class="feat-right slide-r">
+    <div class="feat-card">
+      <div class="feat-card-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <div class="feat-card-title">Performance First</div>
+      <div class="feat-card-text">Engineered alongside Olympic athletes. Form follows function, always.</div>
+    </div>
+    <div class="feat-card accent">
+      <div class="feat-card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="feat-card-title">Forever Guarantee</div>
+      <div class="feat-card-text">If it breaks, we fix it. No receipts. No questions.</div>
+    </div>
+    <div class="feat-card accent">
+      <div class="feat-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="feat-card-title">Science-Backed</div>
+      <div class="feat-card-text">Biomechanics research in every single design decision.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div>
+      <div class="feat-card-title">Carbon Neutral</div>
+      <div class="feat-card-text">Net-zero manufacturing since 2012. Planet included.</div>
+    </div>
+  </div>
+</section>
+
+
+<!--PHOTO GALLERY (id: gallery)-->
+<section id="gallery">
+  <div class="gallery-header">
+    <div>
+      <div class="eyebrow fade-up">Visual Journal</div>
+      <h2 class="section-h fade-up d1">In the<br><em>Iron</em></h2>
+    </div>
+    <button class="btn btn-outline fade-up d2" style="align-self:flex-end">View All →</button>
+  </div>
+  <div class="gallery-grid">
+
+ 
+    <div class="gal-item tall scale-in">
+      <div class="img-slot"><img src="images/pulls.jpg"Gallery 1 – Heavy Pulls"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Heavy Pulls</div><div class="gal-sub">The 5am session</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d1">
+      <div class="img-slot"><img src="images/fade.jpg"Gallery 2 – Morning Grind"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Morning Grind</div><div class="gal-sub">Before the city wakes</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d2">
+      <div class="img-slot"><img src="images/soc.jpg" alt="Gallery 3 – Power Hour"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Power Hour</div><div class="gal-sub">Maximum output</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d3">
+      <div class="img-slot"><img src="images/comp.jpg"Gallery 4 – Competition Day"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Competition Day</div><div class="gal-sub">When it counts</div></div></div>
+    </div>
+
+    
+    <div class="gal-item wide scale-in d2">
+      <div class="img-slot"><img src="images/functional.jpg"Gallery 5 – Functional Fitness"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Functional Fitness</div><div class="gal-sub">Every pattern, perfected</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d1">
+      <div class="img-slot"><img src="images/iron.jpg"Gallery 6 – The Iron Stack"></div>
+      <div class="gal-overlay"><div><div class="gal-label">The Iron Stack</div><div class="gal-sub">Where progress lives</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d2">
+      <div class="img-slot"><img src="images/grip.jpg" Gallery 7 – Grip It"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Grip It</div><div class="gal-sub">Never let go</div></div></div>
+    </div>
+
+    <div class="gal-item scale-in d3">
+      <div class="img-slot"><img src="images/cardio.jpg"Gallery 8 – Cardio Sessions"></div>
+      <div class="gal-overlay"><div><div class="gal-label">Cardio Sessions</div><div class="gal-sub">Lungs first</div></div></div>
+    </div>
+
+  </div>
+</section>
+
+
+<!--EDITORIAL BANNER 3-->
+<section class="editorial" style="border-top:1px solid var(--border)">
+  <div class="ed-content ed-light-alt fade-up">
+    <div class="eyebrow">The Essentials</div>
+    <h2 class="ed-h">Every Rep.<br><em>Every Grip.</em></h2>
+    <p class="ed-body">From the floor to the bar, our accessories are engineered to disappear — so you can focus on the only thing that matters: the lift.</p>
+    <button class="btn btn-dark" onclick="scrollToSection('shop')">Shop Accessories</button>
+  </div>
+  <div class="ed-img">
+    <div class="img-slot img-slot--dark">
+      <img src= "images/gri.jpg"Editorial 3 – Accessories">
+    </div>
+    <div class="ed-img-overlay"></div>
+    <div class="ed-tag">Accessories</div>
+  </div>
+</section>
+
+
+<!--ATHLETE QUOTES SECTION (id: athletes)-->
+<section id="athletes">
+  <div class="eyebrow fade-up">Athlete Stories</div>
+  <h2 class="section-h fade-up d1" style="color:var(--bg)">They Train with <em>FITNESSFRONTIER.</em></h2>
+  <div class="athletes-grid">
+
+    <div class="athlete-card fade-up d1">
+      <div class="athlete-num">01</div>
+      <p class="athlete-quote">"The Titan Barbell is the only bar I've used that didn't bend after two years of <em>daily</em> heavy pulls. Nothing compares."</p>
+      <div class="athlete-info">
+        <div class="athlete-avatar">
+          <div class="img-slot"><img src="images/C1.jpg"Athlete – Marcus Rivera"></div>
+        </div>
+        <div>
+          <div class="athlete-name">Marcus Rivera</div>
+          <div class="athlete-title">IPF World Champion, -93kg</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="athlete-card fade-up d2">
+      <div class="athlete-num">02</div>
+      <p class="athlete-quote">"I've tried every rack on the market. The Squat Cage Pro is the <em>only</em> one stable enough for my 300kg squats. Period."</p>
+      <div class="athlete-info">
+        <div class="athlete-avatar">
+          <div class="img-slot"><img src="images/C2.jpg"Athlete – Aisha Okonkwo"></div>
+        </div>
+        <div>
+          <div class="athlete-name">Aisha Okonkwo</div>
+          <div class="athlete-title">3× National Powerlifting Champion</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="athlete-card fade-up d3">
+      <div class="athlete-num">03</div>
+      <p class="athlete-quote">"FITNESSFRONTIER gear is in every box I coach. When your livelihood depends on equipment, you only use <em>the best.</em>"</p>
+      <div class="athlete-info">
+        <div class="athlete-avatar">
+          <div class="img-slot"><img src="images/C3.jpg"Athlete – Coach Dan Walsh"></div>
+        </div>
+        <div>
+          <div class="athlete-name">Coach Dan Walsh</div>
+          <div class="athlete-title">Olympic Strength &amp; Conditioning</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- EDITORIAL BANNER 4 -->
+<section class="editorial rev" style="border-top:1px solid var(--border)">
+  <div class="ed-img">
+    <div class="img-slot img-slot--dark">
+      <img src="images/cardio.jpg"Editorial 4 – Cardio Collection">
+    </div>
+    <div class="ed-img-overlay"></div>
+    <div class="ed-tag">Cardio</div>
+  </div>
+  <div class="ed-content ed-light-alt fade-up">
+    <div class="eyebrow">Cardio Collection</div>
+    <h2 class="ed-h">Lungs that<br><em>Never Quit.</em></h2>
+    <p class="ed-body">From assault bikes to speed ropes — our cardio equipment is built to match the intensity you bring, every single session.</p>
+    <button class="btn btn-dark" onclick="scrollToSection('shop')">Shop Cardio</button>
+  </div>
+</section>
+
+
+<!--VALUES SECTION (id: values)-->
+<section id="values">
+  <div class="eyebrow fade-up">What We Stand For</div>
+  <h2 class="section-h fade-up d1">Our Values</h2>
+  <div class="values-grid">
+    <div class="value-item fade-up d1">
+      <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+      <div class="value-title">Relentless Quality</div>
+      <div class="value-text">Every product ships only when it exceeds every internal benchmark. We've scrapped entire production runs that didn't meet our standards.</div>
+    </div>
+    <div class="value-item fade-up d2">
+      <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="value-title">Athlete-Led Design</div>
+      <div class="value-text">Every product is designed with active athletes, tested in real gyms, refined by real feedback — not marketing teams.</div>
+    </div>
+    <div class="value-item fade-up d3">
+      <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M12 22c0 0-8-5.455-8-11.273C4 6.91 7.582 4 12 4s8 2.91 8 6.727C20 16.545 12 22 12 22z"/></svg></div>
+      <div class="value-title">Sustainable by Default</div>
+      <div class="value-text">We offset 100% of manufacturing carbon, use recycled packaging, and build gear that lasts decades, not years.</div>
+    </div>
+    <div class="value-item fade-up d4">
+      <div class="value-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="value-title">Honest Business</div>
+      <div class="value-text">No inflated RRPs. No fake discounts. No sponsorship fluff. Just great gear at a fair price with a warranty we honour.</div>
+    </div>
+  </div>
+</section>
+
+
+<!--ABOUT SECTION (id: about)-->
+<section id="about">
+  <div class="about-intro slide-l">
+    <div class="eyebrow">Our Story</div>
+    <h2 class="section-h">Forged in a<br><em>Garage.</em><br>Built for the World.</h2>
+  </div>
+  <div class="about-grid">
+
+   
+    <div class="about-left slide-l">
+      <p>FITNESSFRONTIER started in 2012 in a 400 sq ft garage in Manila. Two competitive powerlifters, frustrated by imported gear that bent, broke, and bankrupted them, decided to build their own barbell from scratch using locally-sourced aerospace steel.</p>
+      <p>That first barbell took six months, fourteen prototypes, and one very patient welder named Remy. It still lives in our founder's home gym today — perfectly straight, perfectly knurled, perfectly functional.</p>
+      <p>We've grown to 50,000+ athletes worldwide, but the obsession hasn't changed. Every product that leaves our facility is checked by hand, stress-tested beyond what any human could apply, and carries the same promise: if it ever fails, we fix it. No receipts. No excuses.</p>
+      <div class="about-stats">
+        <div class="fade-up d1"><div class="about-stat-num">50K+</div><div class="about-stat-label">Athletes Worldwide</div></div>
+        <div class="fade-up d2"><div class="about-stat-num">12+</div><div class="about-stat-label">Years of Craft</div></div>
+        <div class="fade-up d3"><div class="about-stat-num">98%</div><div class="about-stat-label">Satisfaction Rate</div></div>
+      </div>
+      <div class="about-btns">
+        <button class="btn btn-dark" onclick="scrollToSection('team')">Meet the Team</button>
+        <button class="btn btn-outline" onclick="scrollToSection('values')">Our Values</button>
+      </div>
+    </div>
+
+    
+    <div class="about-right slide-r">
+      <div class="about-img-main">
+        <div class="img-slot"><img src="images/store.png" alt="About – FitnessFrontier HQ Manila"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(13,13,13,0.82));z-index:2;pointer-events:none"></div>
+        <div class="about-img-caption">
+          <div class="about-img-caption-title">FITNESSFRONTIER HQ, Manila</div>
+          <div class="about-img-caption-sub">Where every bar is born</div>
+        </div>
+      </div>
+      <div class="about-img-row">
+        <div class="about-img-sm"><div class="img-slot"><img src="images/40.png" alt="About – small photo 1"></div></div>
+        <div class="about-img-sm"><div class="img-slot"><img src="images/41.png" alt="About – small photo 2"></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!--TEAM SECTION (id: team)-->
+<section id="team">
+  <div class="eyebrow fade-up">The People</div>
+  <h2 class="section-h fade-up d1">Behind Every Bar</h2>
+  <div class="team-grid">
+
+    <div class="team-card fade-up d1">
+      <div class="team-photo"><div class="img-slot"><img src="images/36.png" alt="Chervin Pantoja"></div></div>
+      <div class="team-name">Chervin Pantoja</div>
+      <div class="team-role">Co-Founder & Lead of Design</div>
+    </div>
+
+    <div class="team-card fade-up d2">
+      <div class="team-photo"><div class="img-slot"><img src="images/ff.png" alt="Caila Vierneza"></div></div>
+      <div class="team-name">Caila Vierneza</div>
+      <div class="team-role">Co-Founder & Database Head</div>
+    </div>
+
+    <div class="team-card fade-up d3">
+      <div class="team-photo"><div class="img-slot"><img src="images/fif.png" alt="Jezreel Doroteo"></div></div>
+      <div class="team-name">Jezreel Doroteo</div>
+      <div class="team-role">Co-Founder & Lead Engineer</div>
+    </div>
+
+    <div class="team-card fade-up d4">
+      <div class="team-photo"><div class="img-slot"><img src="images/39.png" alt="Engr. Carissa Morano"></div></div>
+      <div class="team-name">Engr. Carissa Morano</div>
+      <div class="team-role">Head Advisor</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!--PRESS LOGOS (id: press)-->
+<section id="press">
+  <div class="press-label fade-up">As Seen In</div>
+  <div class="press-logos fade-up d1">
+    <span class="press-logo">WIRED</span>
+    <span class="press-logo">ESPN</span>
+    <span class="press-logo">MEN'S HEALTH</span>
+    <span class="press-logo">WOMEN'S HEALTH</span>
+    <span class="press-logo">SHAPE</span>
+    <span class="press-logo">FORBES</span>
+  </div>
+</section>
+
+
+<!--EMAIL NEWSLETTER SIGNUP (id: newsletter) -->
+<section id="newsletter">
+  <div class="nl-wrap fade-up">
+    <div class="eyebrow">The FITNESSFRONTIER Journal</div>
+    <h2 class="nl-h">Train Smarter.<br>Lift Heavier.</h2>
+    <p class="nl-sub">Monthly programming, new gear drops, athlete interviews, and training science — straight to your inbox. No spam. Ever.</p>
+    <div class="nl-form">
+      <input class="nl-input" type="email" placeholder="your@email.com" id="nl-email">
+      <button class="btn btn-dark" onclick="nlSubmit()">Subscribe</button>
+    </div>
+    <p class="nl-note">Join 12,000+ athletes. Unsubscribe any time.</p>
+  </div>
+</section>
+
+
+
+<section id="cta-strip" class="fade-up">
+  <h2 class="cta-h">Train<br>like you<br><span>mean it.</span></h2>
+  <p class="cta-sub">50,000 athletes worldwide chose FITNESSFRONTIER. The question is — what are you waiting for?</p>
+  <div class="cta-btns">
+    <button class="btn btn-dark" onclick="scrollToSection('shop')">Shop Now</button>
+    <button class="btn btn-outline" onclick="handleOrderPanel()">View Orders</button>
+  </div>
+</section>
+
+
+<!--FOOTER-->
+<footer>
+  <div class="foot-grid">
+
+    <!-- left column: logo + tagline + social icons -->
+    <div>
+      <div class="foot-logo">
+        <span class="logo-mark logo-mark--img">
+          <img src="images/fflogowww.png"FitnessFrontier Logo" class="logo-img">
+        </span>
+        FITNESSFRONTIER
+      </div>
+      <p class="foot-tagline">Gear up for a healthier lifestyle — elite equipment for athletes who demand more.</p>
+      <div class="foot-social">
+        <div class="soc-btn">𝕏</div>
+        <div class="soc-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="soc-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </div>
+        <div class="soc-btn">in</div>
+      </div>
+    </div>
+
+    <!-- shop links -->
+    <div>
+      <div class="foot-col-title">Shop</div>
+      <ul class="foot-links">
+        <li><a onclick="scrollToSection('shop')">All Products</a></li>
+        <li><a>Barbells</a></li>
+        <li><a>Racks &amp; Cages</a></li>
+        <li><a>Cardio</a></li>
+        <li><a>Apparel</a></li>
+        <li><a>Accessories</a></li>
+      </ul>
+    </div>
+
+    <!-- company links -->
+    <div>
+      <div class="foot-col-title">Company</div>
+      <ul class="foot-links">
+        <li><a onclick="scrollToSection('about')">About Us</a></li>
+        <li><a onclick="scrollToSection('team')">Team</a></li>
+        <li><a onclick="scrollToSection('athletes')">Athletes</a></li>
+        <li><a onclick="scrollToSection('values')">Values</a></li>
+        <li><a>Careers</a></li>
+        <li><a>Press</a></li>
+      </ul>
+    </div>
+
+    <!-- journal links -->
+    <div>
+      <div class="foot-col-title">Journal</div>
+      <ul class="foot-links">
+        <li><a>Training Guides</a></li>
+        <li><a>Nutrition</a></li>
+        <li><a>Athlete Stories</a></li>
+        <li><a>Gear Reviews</a></li>
+        <li><a onclick="scrollToSection('newsletter')">Newsletter</a></li>
+      </ul>
+    </div>
+
+    <!-- support links -->
+    <div>
+      <div class="foot-col-title">Support</div>
+      <ul class="foot-links">
+        <li><a>FAQ</a></li>
+        <li><a>Shipping</a></li>
+        <li><a>Returns</a></li>
+        <li><a>Warranty</a></li>
+        <li><a onclick="handleOrderPanel()">Order History</a></li>
+        <li><a>Contact</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- bottom bar: copyright + legal links -->
+  <div class="foot-bottom">
+    <span class="foot-copy">© 2026 FITNESSFRONTIER. All rights reserved.</span>
+    <div class="foot-legal">
+      <a>Privacy</a>
+      <a>Terms</a>
+      <a>Cookies</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="main.js"></script>
+</body>
+</html>
